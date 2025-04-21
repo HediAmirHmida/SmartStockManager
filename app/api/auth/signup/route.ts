@@ -1,15 +1,11 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '../../../lib/prisma';
+import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.text(); 
-    console.log("Raw request body:", body);
-
-    const { email, password, name } = JSON.parse(body); // Manually parse the input and add name
-    console.log("Parsed email:", email);
-    console.log("Parsed name:", name);
+    const { email, password, name } = await req.json(); // cleaner
 
     if (!email || !password || !name) {
       return NextResponse.json({ error: 'Email, password, and name are required' }, { status: 400 });
@@ -29,11 +25,20 @@ export async function POST(req: Request) {
       data: {
         email,
         password: hashedPassword,
-        name,  // Add the name field here
+        name,
       }
     });
 
-    return NextResponse.json(user, { status: 201 });
+    // Set session cookie
+    (await
+      // Set session cookie
+      cookies()).set('user_id', String(user.id), {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 60 * 24, // 1 day
+    });
+
+    return NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name } }, { status: 201 });
 
   } catch (error) {
     console.error("Signup API Error:", error);
