@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📦 Smart Stock Manager
 
-## Getting Started
+Smart Stock Manager is a full-stack inventory and earnings management web application built with **Next.js 15**. It empowers businesses and users to manage their stock efficiently, track sales, predict restocking needs, and gain insights through smart dashboards.
 
-First, run the development server:
+---
 
-```bash
+## 🧰 Technologies Used
+
+- ⚛️ **Next.js 15** – React framework with server-side rendering and static site generation.
+- 🧬 **Prisma** – Modern ORM for seamless interaction with a MySQL database.
+- 🎨 **Tailwind CSS** – Utility-first CSS for fast and responsive UI development.
+- ☁️ **Vercel** – Lightning-fast deployment platform for modern web apps.
+
+---
+
+## ✨ Features and Functionality
+
+### 📁 Inventory Management
+Organize and manage products by category. Add, edit, or remove items with details like name, description, quantity, and price.
+
+### 📈 Sales & Earnings Tracker
+Log every transaction and monitor overall revenue. Analyze product earnings and visualize trends with category-wise insights.
+
+### 🧠 Restock Prediction
+Using past sales data, the system predicts when products will go out of stock and recommends optimal reorder times.
+
+### 💸 Dynamic Pricing (optional module)
+Suggests competitive pricing based on demand trends, sales velocity, and performance metrics.
+
+### 👤 User Profiles
+Each user has a secure profile linked to their inventory and earnings, allowing personalized access and data management.
+
+---
+
+## 🔍 How Restock Prediction Works
+
+The app analyzes historical sales data (e.g., weekly sales rates) and current stock levels to predict when a product will run out. It applies a simple forecasting model to notify users in advance, reducing the chance of stockouts and improving restock planning.
+
+---
+📦 Install Dependencies
+bash
+Copy
+Edit
+npm install
+💻 Start the Development Server
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Visit http://localhost:3000 in your browser to view the app.
+🌐 Deployment
+This app is live on Vercel:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🔗[ Smart Stock Manager (Live Demo)](https://smart-stock-manager-suiw-git-main-hediamirhmidas-projects.vercel.app)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To deploy your own version, follow the Next.js deployment documentation.
+🧠 Author
+Made with passion by Hedi Amir Hmida
+📧 hmida01@ads.uni-passau.de
+🔗 LinkedIn | GitHub
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+📄 License
+This project is licensed under the MIT License.
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### 🧾 Clone the Repository
+```bash
+git clone https://github.com/HediAmirHmida/SmartStockManager.git
+cd SmartStockManager
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
