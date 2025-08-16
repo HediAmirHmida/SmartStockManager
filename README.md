@@ -7,7 +7,7 @@ Smart Stock Manager is a full-stack inventory and earnings management web applic
 ## 🧰 Technologies Used
 
 - ⚛️ **Next.js 15** – React framework with server-side rendering and static site generation.
-- 🧬 **Prisma** – Modern ORM for seamless interaction with a MySQL database.
+- 🧬 **Prisma** – Modern ORM for seamless interaction with a PostgreSQL database.
 - 🎨 **Tailwind CSS** – Utility-first CSS for fast and responsive UI development.
 - ☁️ **Vercel** – Lightning-fast deployment platform for modern web apps.
 
