@@ -1,54 +1,49 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
+
 model Category {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  items     Item[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  items     Item[]
 }
 
 model Item {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String   @default("")
-  quantity    Int      @default(0)
-  imageUrl    String?  @default("")
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id],onDelete: Cascade)
-  sales       Sale[]   // New relation
-    restockThreshold Int @default(5)
+  id               Int      @id @default(autoincrement())
+  name             String
+  description      String   @default("")
+  quantity         Int      @default(0)
+  imageUrl         String?  @default("")
+  categoryId       Int
+  restockThreshold Int      @default(5)
+  category         Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  sales            Sale[]
 }
+
 model Sale {
   id        Int      @id @default(autoincrement())
-  item      Item     @relation(fields: [itemId], references: [id],onDelete: Cascade)
   itemId    Int
-  quantity  Int      // quantity sold
-  price     Float    // sale price per unit
-  total     Float    // calculated = quantity * price
+  quantity  Int
+  price     Float
+  total     Float
   createdAt DateTime @default(now())
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
 }
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   password  String
-   name      String?
+  name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-
-

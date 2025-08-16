@@ -129,25 +129,14 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.CategoryOrderByRelevanceFieldEnum = {
-  name: 'name'
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
-};
-
-exports.Prisma.ItemOrderByRelevanceFieldEnum = {
-  name: 'name',
-  description: 'description',
-  imageUrl: 'imageUrl'
-};
-
-exports.Prisma.UserOrderByRelevanceFieldEnum = {
-  email: 'email',
-  password: 'password',
-  name: 'name'
 };
 
 
@@ -195,17 +184,17 @@ const config = {
   "datasourceNames": [
     "db"
   ],
-  "activeProvider": "mysql",
+  "activeProvider": "postgresql",
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "mysql://root:hedi23873499&@localhost:3306/smartstockmanager"
+        "value": "postgresql://postgres.duohggqeefwmgzgmqcec:Hedi23873499&@aws-1-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Category {\n  id        Int      @id @default(autoincrement())\n  name      String\n  items     Item[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Item {\n  id               Int      @id @default(autoincrement())\n  name             String\n  description      String   @default(\"\")\n  quantity         Int      @default(0)\n  imageUrl         String?  @default(\"\")\n  categoryId       Int\n  category         Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)\n  sales            Sale[] // New relation\n  restockThreshold Int      @default(5)\n}\n\nmodel Sale {\n  id        Int      @id @default(autoincrement())\n  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)\n  itemId    Int\n  quantity  Int // quantity sold\n  price     Float // sale price per unit\n  total     Float // calculated = quantity * price\n  createdAt DateTime @default(now())\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  password  String\n  name      String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
-  "inlineSchemaHash": "0ce16090ef1a90820ecdb200299a202a9da5ac76ca4b548645ed9bdf9018cb81",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DIRECT_URL\")\n}\n\nmodel Category {\n  id        Int      @id @default(autoincrement())\n  name      String\n  items     Item[]\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Item {\n  id               Int      @id @default(autoincrement())\n  name             String\n  description      String   @default(\"\")\n  quantity         Int      @default(0)\n  imageUrl         String?  @default(\"\")\n  categoryId       Int\n  category         Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)\n  sales            Sale[] // New relation\n  restockThreshold Int      @default(5)\n}\n\nmodel Sale {\n  id        Int      @id @default(autoincrement())\n  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)\n  itemId    Int\n  quantity  Int // quantity sold\n  price     Float // sale price per unit\n  total     Float // calculated = quantity * price\n  createdAt DateTime @default(now())\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  password  String\n  name      String?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
+  "inlineSchemaHash": "d9120ad035b4f1f7922cce5e385b3620250c034bb1913e12a1679b9e80cc8600",
   "copyEngine": true
 }
 config.dirname = '/'

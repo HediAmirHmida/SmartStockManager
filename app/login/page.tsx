@@ -112,7 +112,7 @@ export default function LoginSignup() {
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label className="block mb-1 text-sm">Name</label>
+            <label className="block mb-1 text-sm"></label>
             {!isLogin && (
               <input
                 type="text"
