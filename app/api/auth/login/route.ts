@@ -11,10 +11,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 400 });
+      if (!user) {
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 400 });
+      }
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return NextResponse.json({ error: 'Database connection error', details: dbError }, { status: 500 });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
