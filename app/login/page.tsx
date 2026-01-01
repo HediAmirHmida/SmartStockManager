@@ -11,6 +11,7 @@ export default function LoginSignup() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');  // New state for the name field
   const [message, setMessage] = useState('');
+  const [isSuccessMessage, setIsSuccessMessage] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,6 +19,7 @@ export default function LoginSignup() {
 
     if (!email || !password || (!isLogin && !name)) {
       setMessage('Please provide all required fields (email, password, name)');
+      setIsSuccessMessage(false);
       return;
     }
 
@@ -26,6 +28,7 @@ export default function LoginSignup() {
     if (!isLogin) {
       if (password !== confirmPassword) {
         setMessage("Passwords don't match");
+        setIsSuccessMessage(false);
         return;
       }
 
@@ -43,28 +46,19 @@ export default function LoginSignup() {
       if (!signupRes.ok) {
         console.error("Signup failed:", signupData);
         setMessage(signupData.error || 'Signup failed');
+        setIsSuccessMessage(false);
         return;
       }
 
-      // Step 2: Auto-login the user
-      const loginRes = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const loginData = await loginRes.json();
-
-      if (!loginRes.ok) {
-        console.error("Login after signup failed:", loginData);
-        setMessage(loginData.error || 'Login after signup failed');
-        return;
-      }
-
-      // Step 3: Redirect to dashboard
-      router.push('/dashboard');
+      // Signup successful - show success message and switch to login mode
+      setMessage('Account created successfully! Please login with your credentials.');
+      setIsSuccessMessage(true);
+      setIsLogin(true);
+      // Clear the form fields
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setName('');
       return;
     }
 
@@ -83,11 +77,13 @@ export default function LoginSignup() {
       if (!response.ok) {
         console.error("Login failed:", data);
         setMessage(data.error || 'Login failed');
+        setIsSuccessMessage(false);
         return;
       }
 
       router.push('/dashboard');
     } catch (error: unknown) {
+      setIsSuccessMessage(false);
       if (error instanceof Error) {
         setMessage(error.message);
         console.error("Frontend error:", error.message);
@@ -163,7 +159,11 @@ export default function LoginSignup() {
             </div>
           )}
 
-          {message && <p className="text-red-400 text-center">{message}</p>}
+          {message && (
+            <p className={`text-center ${isSuccessMessage ? 'text-green-400' : 'text-red-400'}`}>
+              {message}
+            </p>
+          )}
 
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -183,6 +183,7 @@ export default function LoginSignup() {
             onClick={() => {
               setIsLogin(!isLogin);
               setMessage('');
+              setIsSuccessMessage(false);
             }}
             className="text-sm text-blue-400 hover:underline ml-1"
           >

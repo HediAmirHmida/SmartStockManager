@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '../../../lib/prisma';
-import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
@@ -29,15 +28,7 @@ export async function POST(req: Request) {
       }
     });
 
-    // Set session cookie
-    (await
-      // Set session cookie
-      cookies()).set('user_id', String(user.id), {
-      httpOnly: true,
-      path: '/',
-      maxAge: 60 * 60 * 24, // 1 day
-    });
-
+    // Don't auto-login after signup - user needs to login manually
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name } }, { status: 201 });
 
   } catch (error) {
