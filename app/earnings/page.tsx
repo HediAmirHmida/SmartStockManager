@@ -21,11 +21,11 @@ export default function EarningsPage() {
   const [viewMode, setViewMode] = useState<'product' | 'category'>('product')
 
   useEffect(() => {
-    fetch('/api/sale/summary')
+    fetch('/api/sale?type=summary')
       .then((res) => res.json())
       .then(setEarnings)
 
-    fetch('/api/sale/by-date')
+    fetch('/api/sale?type=by-date')
       .then((res) => res.json())
       .then(setByDate)
 
