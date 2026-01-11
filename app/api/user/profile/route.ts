@@ -34,10 +34,10 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json(); // Parse the incoming request body
-    const { name, email, password } = body;
+    const { name, password } = body;
 
-    if (!name || !email) {
-      return new Response(JSON.stringify({ error: 'Name and email are required' }), { status: 400 });
+    if (!name) {
+      return new Response(JSON.stringify({ error: 'Name is required' }), { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -48,16 +48,17 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
     }
 
-    // If password is provided, hash it; otherwise, retain the existing password
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : user.password;
+    // Build update data - only update fields that are provided
+    const updateData: { name: string; password?: string } = { name };
+
+    // If password is provided, hash it; otherwise, don't update password
+    if (password && password.trim() !== '') {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: Number(userId) },
-      data: {
-        name,
-        email,
-        password: hashedPassword
-      }
+      data: updateData
     });
 
     return new Response(JSON.stringify({ message: 'Profile updated successfully!' }), { status: 200 });
