@@ -3,10 +3,13 @@
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Package, TrendingUp, User, Settings, LogOut, LayoutDashboard } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const pathname = usePathname()
 
   // Close dropdown when clicked outside
   useEffect(() => {
@@ -19,65 +22,98 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  const navLinks = [
+    { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/inventory', label: 'Inventory', icon: Package },
+    { href: '/earnings', label: 'Earnings', icon: TrendingUp },
+  ]
+
+  const isActive = (href: string) => pathname === href
+
   return (
-    <header className="bg-gray-800 shadow-lg px-6 py-4 flex justify-between items-center relative">
-      <Link href="/dashboard" className="text-xl font-bold text-white hover:text-blue-400 transition-all">
-        Smart Stock Manager
-      </Link>
+    <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-lg">
 
-      <div className="flex items-center gap-6">
-        <Link href="/inventory" className="text-gray-300 hover:text-white transition-all">Inventory</Link>
-        <Link href="/earnings" className="text-gray-300 hover:text-white transition-all">Earnings</Link>
+      <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <Link 
+          href="/dashboard" 
+          className="text-2xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent hover:from-blue-300 hover:to-blue-500 transition-all"
+        >
+          Smart Stock Manager
+        </Link>
 
-        {/* Profile Dropdown */}
-        <div className="relative" ref={dropdownRef}>
-          <div
-            onClick={() => setDropdownOpen(prev => !prev)}
-            className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-all"
-          >
-            <span className="text-white font-semibold">U</span>
-          </div>
-
-          <AnimatePresence>
-            {dropdownOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg z-50"
+        <div className="flex items-center gap-2">
+          {navLinks.map((link) => {
+            const Icon = link.icon
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  isActive(link.href)
+                    ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
+                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                }`}
               >
-                <Link
-                  href="/profile"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
-                  onClick={() => setDropdownOpen(false)}
+                <Icon className="w-4 h-4" />
+                <span className="hidden md:inline">{link.label}</span>
+              </Link>
+            )
+          })}
+
+          {/* Profile Dropdown */}
+          <div className="relative ml-4" ref={dropdownRef}>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setDropdownOpen(prev => !prev)}
+              className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center cursor-pointer hover:from-blue-400 hover:to-blue-500 transition-all shadow-lg"
+            >
+              <User className="w-5 h-5 text-white" />
+            </motion.button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  className="absolute right-0 mt-2 w-48 bg-white/10 backdrop-blur-lg rounded-xl shadow-2xl border border-white/20 z-50 overflow-hidden"
                 >
-                  Settings
-                </Link>
-                <button
-                 onClick={async () => {
-                  setDropdownOpen(false);
-                  try {
-                    const res = await fetch('/api/auth/logout');
-                    if (res.ok) {
-                      window.location.href = "/login"; // redirect to login
-                    } else {
-                      alert("Logout failed.");
-                    }
-                  } catch (error) {
-                    console.error("Logout error:", error);
-                    alert("An error occurred during logout.");
-                  }
-                }}
-                
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
-                >
-                  Log Out
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-4 py-3 text-white hover:bg-white/10 transition-all"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Profile Settings</span>
+                  </Link>
+                  <div className="h-px bg-white/10" />
+                  <button
+                    onClick={async () => {
+                      setDropdownOpen(false);
+                      try {
+                        const res = await fetch('/api/auth/logout');
+                        if (res.ok) {
+                          window.location.href = "/login";
+                        } else {
+                          alert("Logout failed.");
+                        }
+                      } catch (error) {
+                        console.error("Logout error:", error);
+                        alert("An error occurred during logout.");
+                      }
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:bg-red-500/20 transition-all text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Log Out</span>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      </nav>
     </header>
   )
 }
