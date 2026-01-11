@@ -10,11 +10,15 @@ export async function GET() {
   const predictions = items.map((item) => {
     const sales = item.sales
     const totalSold = sales.reduce((sum, s) => sum + s.quantity, 0)
-    const days = new Set(sales.map(s => s.createdAt.toISOString().split('T')[0])).size || 1
+    
+    // Calculate days since first sale or use a minimum of 7 days for more realistic averages
+    const firstSaleDate = sales.length > 0 ? Math.min(...sales.map(s => s.createdAt.getTime())) : Date.now()
+    const daysSinceFirstSale = Math.max(1, Math.ceil((Date.now() - firstSaleDate) / (1000 * 60 * 60 * 24)))
+    const days = Math.max(7, new Set(sales.map(s => s.createdAt.toISOString().split('T')[0])).size || 1) // Minimum 7 days
     const dailyRate = totalSold / days
 
-    const daysUntilOut = dailyRate > 0 ? Math.floor(item.quantity / dailyRate) : null
-    const estimatedRestockDate = daysUntilOut
+    const daysUntilOut = dailyRate > 0 ? Math.max(0, Math.floor(item.quantity / dailyRate)) : null
+    const estimatedRestockDate = daysUntilOut && daysUntilOut <= 30
       ? new Date(Date.now() + daysUntilOut * 86400000).toISOString().split('T')[0]
       : null
 

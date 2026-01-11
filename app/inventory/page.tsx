@@ -251,10 +251,17 @@ export default function InventoryPage() {
                   value={newItem.categoryId}
                   onChange={(e) => setNewItem({ ...newItem, categoryId: Number(e.target.value) })}
                   className="bg-white/10 border border-white/20 px-4 py-3 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{
+                    color: 'white',
+                  }}
                 >
-                  <option value={0}>Select Category</option>
+                  <option value={0} style={{ backgroundColor: '#1a1a1a', color: 'white' }}>Select Category</option>
                   {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
+                    <option 
+                      key={category.id} 
+                      value={category.id}
+                      style={{ backgroundColor: '#1a1a1a', color: 'white' }}
+                    >
                       {category.name}
                     </option>
                   ))}
@@ -406,15 +413,77 @@ export default function InventoryPage() {
                               return;
                             }
 
-                            await fetch('/api/sale', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
-                              body: JSON.stringify({ itemId: item.id, quantity, price }),
-                            });
+                            // Check if quantity exceeds available stock
+                            if (quantity > item.quantity) {
+                              showMessage(`Cannot sell ${quantity} items. Only ${item.quantity} available in stock.`);
+                              return;
+                            }
 
-                            await fetchCategories();
-                            showMessage('Sale recorded successfully!');
-                            e.currentTarget.reset();
+                            try {
+                              const response = await fetch('/api/sale', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ itemId: item.id, quantity, price }),
+                              });
+
+                              let data;
+                              try {
+                                data = await response.json();
+                              } catch (jsonError) {
+                                console.error('Failed to parse API response:', jsonError);
+                                showMessage('Failed to process server response');
+                                return;
+                              }
+
+                              if (!response.ok) {
+                                showMessage(data.error || 'Failed to record sale');
+                                return;
+                              }
+
+                              // Sale recorded successfully
+                              showMessage('Sale recorded successfully!');
+                              
+                              // Optimistically update the local state
+                              try {
+                                setCategories(prevCategories => 
+                                  prevCategories.map(category => ({
+                                    ...category,
+                                    items: category.items.map(currentItem => 
+                                      currentItem.id === item.id 
+                                        ? { ...currentItem, quantity: currentItem.quantity - quantity }
+                                        : currentItem
+                                    )
+                                  }))
+                                );
+                              } catch (stateError) {
+                                console.warn('Failed to update local state:', stateError);
+                              }
+                              
+                              // Clear form fields manually
+                              try {
+                                const form = e.target as HTMLFormElement;
+                                if (form) {
+                                  const quantityInput = form.querySelector('input[name="quantity"]') as HTMLInputElement;
+                                  const priceInput = form.querySelector('input[name="price"]') as HTMLInputElement;
+                                  if (quantityInput) quantityInput.value = '';
+                                  if (priceInput) priceInput.value = '';
+                                }
+                              } catch (formError) {
+                                console.warn('Failed to clear form fields:', formError);
+                                // Form clearing failed, but sale was successful
+                              }
+                              
+                              // Try to refresh categories from server (but local state is already updated)
+                              try {
+                                await fetchCategories();
+                              } catch (refreshError) {
+                                console.warn('Failed to refresh categories from server, but local state updated:', refreshError);
+                                // Local state is already updated, so UI reflects the change
+                              }
+                            } catch (error) {
+                              console.error('Sale recording error:', error);
+                              showMessage('An error occurred while recording the sale');
+                            }
                           }}
                           className="space-y-2 pt-4 border-t border-white/10"
                         >

@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Package, AlertTriangle, TrendingUp, DollarSign, ArrowRight, BarChart3 } from 'lucide-react';
+import { Package, AlertTriangle, TrendingUp, Euro, ArrowRight, BarChart3 } from 'lucide-react';
 
 interface DashboardStats {
   totalItems: number;
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       gradient: 'from-yellow-500 to-yellow-700',
       bgColor: 'bg-yellow-500/10',
       iconColor: 'text-yellow-400',
-      stat: `$${stats.totalEarnings.toFixed(2)}`,
+      stat: `€${stats.totalEarnings.toFixed(2)}`,
       statLabel: 'Total Earnings',
       subStat: 'All time revenue',
     },
@@ -170,12 +170,12 @@ export default function DashboardPage() {
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-4 border border-white/10">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-500/20 rounded-lg">
-                <DollarSign className="w-5 h-5 text-yellow-400" />
+                <Euro className="w-5 h-5 text-yellow-400" />
               </div>
               <div>
                 <p className="text-gray-400 text-xs">Total Revenue</p>
                 <p className="text-white text-xl font-bold">
-                  {loading ? '...' : `$${stats.totalEarnings.toFixed(0)}`}
+                  {loading ? '...' : `€${stats.totalEarnings.toFixed(0)}`}
                 </p>
               </div>
             </div>

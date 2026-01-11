@@ -31,7 +31,7 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href
 
   return (
-    <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-white/10 shadow-lg">
+    <header className="sticky top-0 z-50 bg-gradient-to-br from-[#0f2027]/80 to-[#203a43]/80 backdrop-blur-lg border-b border-white/10 shadow-lg">
 
       <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
         <Link 
