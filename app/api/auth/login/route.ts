@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { email, password, rememberMe } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
@@ -30,12 +30,13 @@ export async function POST(req: Request) {
     }
 
     // Set cookie properly
+    const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 60 * 60 * 24; // 30 days or 1 day
     (await
       // Set cookie properly
       cookies()).set('user_id', String(user.id), {
       httpOnly: true,
       path: '/',
-      maxAge: 60 * 60 * 24, // 1 day
+      maxAge: maxAge,
     });
 
     return NextResponse.json({ success: true, user: { id: user.id, email: user.email } });

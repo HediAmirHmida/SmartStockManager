@@ -17,6 +17,7 @@ export default function LoginSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{email?: string, password?: string, confirmPassword?: string, name?: string}>({});
+  const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
 
   const validateEmail = (email: string) => {
@@ -133,7 +134,7 @@ export default function LoginSignup() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       const data = await response.json();
@@ -335,6 +336,27 @@ export default function LoginSignup() {
                   {errors.confirmPassword}
                 </p>
               )}
+            </motion.div>
+          )}
+
+          {/* Remember Me Checkbox (Login only) */}
+          {isLogin && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+              className="flex items-center"
+            >
+              <input
+                id="rememberMe"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-[#2a2a2d] border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-300">
+                Remember me for 30 days
+              </label>
             </motion.div>
           )}
 

@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
+import AIChat from './AIChat';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,6 +14,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     <>
       {shouldShowNavbar && <Navbar />}
       {children}
+      {shouldShowNavbar && <AIChat />}
     </>
   );
 }

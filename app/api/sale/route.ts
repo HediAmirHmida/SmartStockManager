@@ -1,55 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '../../lib/prisma';
+import { requireAuth } from '../../lib/auth';
 
 export async function POST(req: NextRequest) {
-  const { itemId, quantity, price } = await req.json();
+  try {
+    const user = await requireAuth();
+    const { itemId, quantity, price } = await req.json();
 
-  // Get item to check current quantity
-  const item = await prisma.item.findUnique({
-    where: { id: itemId },
-  });
+    // Get item to check current quantity (ensure it belongs to user)
+    const item = await prisma.item.findFirst({
+      where: { id: itemId, userId: user.id },
+    });
 
-  if (!item) {
-    return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-  }
+    if (!item) {
+      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    }
 
-  if (item.quantity < quantity) {
-    return NextResponse.json(
-      { error: 'Not enough quantity in stock' },
-      { status: 400 }
-    );
-  }
+    if (item.quantity < quantity) {
+      return NextResponse.json(
+        { error: 'Not enough quantity in stock' },
+        { status: 400 }
+      );
+    }
 
-  // Calculate total
-  const total = quantity * price;
+    // Calculate total
+    const total = quantity * price;
 
-  // Create sale and update item quantity in a single transaction
-  const [sale] = await prisma.$transaction([
-    prisma.sale.create({
-      data: { itemId, quantity, price, total },
-    }),
-    prisma.item.update({
-      where: { id: itemId },
-      data: {
-        quantity: {
-          decrement: quantity,
+    // Create sale and update item quantity in a single transaction
+    const [sale] = await prisma.$transaction([
+      prisma.sale.create({
+        data: { itemId, quantity, price, total, userId: user.id },
+      }),
+      prisma.item.update({
+        where: { id: itemId },
+        data: {
+          quantity: {
+            decrement: quantity,
+          },
         },
-      },
-    }),
-  ]);
+      }),
+    ]);
 
-  return NextResponse.json(sale);
+    return NextResponse.json(sale);
+  } catch (error) {
+    console.error('Error creating sale:', error);
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
 }
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const type = searchParams.get('type');
-
   try {
+    const user = await requireAuth();
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get('type');
+
     if (type === 'summary') {
-      // Return summary grouped by item
+      // Return summary grouped by item (user-specific)
       const summary = await prisma.sale.groupBy({
         by: ['itemId'],
+        where: { userId: user.id },
         _sum: {
           total: true,
           quantity: true
@@ -65,8 +74,8 @@ export async function GET(req: NextRequest) {
       })
 
       const withDetails = await Promise.all(summary.map(async (entry) => {
-        const item = await prisma.item.findUnique({
-          where: { id: entry.itemId },
+        const item = await prisma.item.findFirst({
+          where: { id: entry.itemId, userId: user.id },
           include: { category: true }
         })
         return {
@@ -79,8 +88,9 @@ export async function GET(req: NextRequest) {
 
       return NextResponse.json(withDetails)
     } else if (type === 'by-date') {
-      // Return sales grouped by date and category
+      // Return sales grouped by date and category (user-specific)
       const sales = await prisma.sale.findMany({
+        where: { userId: user.id },
         include: {
           item: {
             select: {
@@ -119,6 +129,6 @@ export async function GET(req: NextRequest) {
     }
   } catch (error) {
     console.error('[GET /api/sale]', error)
-    return NextResponse.json({ error: 'Failed to load sale data' }, { status: 500 })
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
   }
 }
