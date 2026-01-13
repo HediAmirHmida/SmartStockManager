@@ -53,6 +53,29 @@ export async function POST(req: Request) {
     const user = await requireAuth();
     const body = await req.json();
 
+    // Validate that categoryId is provided
+    if (!body.categoryId) {
+      return NextResponse.json(
+        { error: 'Please create a category first before adding items' },
+        { status: 400 }
+      );
+    }
+
+    // Check if the category exists and belongs to the user
+    const category = await prisma.category.findFirst({
+      where: {
+        id: body.categoryId,
+        userId: user.id,
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Category not found. Please create a category first.' },
+        { status: 404 }
+      );
+    }
+
     const newItem = await prisma.item.create({
       data: {
         name: body.name,
@@ -67,6 +90,6 @@ export async function POST(req: Request) {
     return NextResponse.json(newItem);
   } catch (error) {
     console.error('Error creating item:', error);
-    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    return NextResponse.json({ error: 'Failed to create item' }, { status: 500 });
   }
 }

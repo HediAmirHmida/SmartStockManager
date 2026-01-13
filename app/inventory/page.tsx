@@ -70,18 +70,21 @@ export default function InventoryPage() {
     }
   };
 
-  const handleAddItem = async () => {
-    const res = await fetch('/api/item', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem),
-    });
+ const handleAddItem = async () => {
+  const res = await fetch('/api/item', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newItem),
+  });
 
-    if (res.ok) {
-      await fetchCategories();
-      setNewItem({ name: '', description: '', quantity: 0, imageUrl: '', categoryId: 0 });
-    }
-  };
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || 'Failed to add item');
+  }
+
+  await fetchCategories();
+  setNewItem({ name: '', description: '', quantity: 0, imageUrl: '', categoryId: 0 });
+};
 
   const handleDeleteItem = async (id: number) => {
     await fetch(`/api/item/${id}`, { method: 'DELETE' });
@@ -268,15 +271,20 @@ export default function InventoryPage() {
                 </select>
               </div>
               <button
-                onClick={async () => {
-                  await handleAddItem();
-                  showMessage('Item added successfully!');
-                  setShowAddItem(false);
-                }}
-                className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all"
-              >
-                Add Item
-              </button>
+  onClick={async () => {
+    try {
+      await handleAddItem();
+      showMessage('Item added successfully!');
+      setShowAddItem(false);
+    } catch (error) {
+      showMessage('Failed to add item. Please try again.(Must select a category ) ');
+      
+    }
+  }}
+  className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-all"
+>
+  Add Item
+</button>
             </motion.div>
           )}
         </AnimatePresence>
