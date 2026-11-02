@@ -87,7 +87,7 @@ export default function AIChat() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          messages: [{ role: 'user', content: input }],
+          messages: [...messages, userMessage].map(({ role, content }) => ({ role, content })),
           inventoryData
         }),
       })
@@ -105,7 +105,7 @@ export default function AIChat() {
       console.error('Chat error:', error)
       const errorMessage = {
         role: 'assistant' as const,
-        content: 'Sorry, I encountered an error. Please make sure Ollama is running locally (run "ollama serve" in terminal).',
+        content: 'Sorry, I encountered an error talking to Gemini. Please try again.',
         timestamp: new Date()
       }
       setMessages(prev => [...prev, errorMessage])
@@ -230,7 +230,7 @@ export default function AIChat() {
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                Powered by local AI • Ollama required
+                Powered by Gemini
               </p>
             </form>
           </motion.div>
